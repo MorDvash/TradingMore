@@ -4,11 +4,14 @@ import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import {
   ConflictException,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
+  private logger = new Logger('AuthRepository', { timestamp: true });
+
   async createUser(authCredentialDto: AuthCredentialsDto): Promise<void> {
     const { userName, password } = authCredentialDto;
 
@@ -21,8 +24,16 @@ export class UserRepository extends Repository<User> {
     } catch (error) {
       if (error.code === '23505') {
         // duplicate username (need to make other file for handling error)
+        this.logger.error(
+          `Failed to create user "${user.userName} because already exists".`,
+          error.stack,
+        );
         throw new ConflictException('Username already exists');
       } else {
+        this.logger.error(
+          `Failed to create user "${user.userName}".`,
+          error.stack,
+        );
         throw new InternalServerErrorException();
       }
     }
