@@ -50,10 +50,8 @@ export class AuthService {
 
   async updateUserPassword(user: User, newPassword: string): Promise<string> {
     const { id, password } = user;
-    this.logger.log(newPassword);
     const salt = await bcrypt.genSalt();
     newPassword = await bcrypt.hash(newPassword, salt);
-    this.logger.log(newPassword);
     if (password === newPassword) {
       throw new HttpException(
         'New password is equal to old password',
