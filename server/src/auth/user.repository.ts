@@ -19,8 +19,10 @@ export class UserRepository extends Repository<User> {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const user = this.create({ userName, password: hashedPassword });
+    this.logger.verbose(`"${user}" was created`);
     try {
       await this.save(user);
+      this.logger.verbose(`"${user}" was saved`);
     } catch (error) {
       if (error.code === '23505') {
         // duplicate username (need to make other file for handling error)
@@ -36,6 +38,16 @@ export class UserRepository extends Repository<User> {
         );
         throw new InternalServerErrorException();
       }
+    }
+  }
+  async deleteUser(id: string) {
+    try {
+      await this.delete(id);
+      this.logger.verbose(`user "${id}" was deleted`);
+      return 'User was delete';
+    } catch (error) {
+      this.logger.error(`Failed to delete user "${id}".`, error.stack);
+      throw new InternalServerErrorException();
     }
   }
 }
