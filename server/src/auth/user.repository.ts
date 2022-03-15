@@ -6,7 +6,6 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import * as bcrypt from 'bcryptjs';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
@@ -14,13 +13,11 @@ export class UserRepository extends Repository<User> {
 
   async createUser(authCredentialDto: AuthCredentialsDto): Promise<void> {
     const { userName, password } = authCredentialDto;
-
-    const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const user = this.create({ userName, password: hashedPassword });
+    const user = this.create({ userName, password });
+    this.logger.verbose(`"${user.userName}" was created`);
     try {
       await this.save(user);
+      this.logger.verbose(`"${user.userName}" was saved`);
     } catch (error) {
       if (error.code === '23505') {
         // duplicate username (need to make other file for handling error)
@@ -36,6 +33,29 @@ export class UserRepository extends Repository<User> {
         );
         throw new InternalServerErrorException();
       }
+    }
+  }
+
+  async deleteUser(id: string): Promise<string> {
+    try {
+      await this.delete(id);
+      this.logger.verbose(`user "${id}" was deleted`);
+      return 'User was delete';
+    } catch (error) {
+      this.logger.error(`Failed to delete user "${id}".`, error.stack);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async updatePassword(newPassword: string, id: string): Promise<string> {
+    try {
+      this.logger.log(id);
+      await this.update({ id: id }, { password: newPassword });
+      this.logger.verbose(`user "${id}" Password was Update`);
+      return 'Password was update';
+    } catch (error) {
+      this.logger.error(`Failed to Update user "${id}". Password`, error.stack);
+      throw new InternalServerErrorException();
     }
   }
 }

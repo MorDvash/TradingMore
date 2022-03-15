@@ -1,5 +1,4 @@
 import {
-  IsEmail,
   IsNotEmpty,
   IsString,
   Matches,
@@ -7,11 +6,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class AuthCredentialsDto {
-  @IsString()
-  @IsEmail()
-  userName: string;
-
+export class UpdatePasswordDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(8)
@@ -19,5 +14,5 @@ export class AuthCredentialsDto {
   @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
     message: 'Password is too weak',
   })
-  password: string;
+  newPassword: string;
 }
