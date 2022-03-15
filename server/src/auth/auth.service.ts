@@ -14,9 +14,13 @@ export class AuthService {
     @InjectRepository(UserRepository) private userRepository: UserRepository,
     private jwtService: JwtService,
   ) {}
+
   async signUp(authCredential: AuthCredentialsDto): Promise<void> {
+    const salt = await bcrypt.genSalt();
+    authCredential.password = await bcrypt.hash(authCredential.password, salt);
     return this.userRepository.createUser(authCredential);
   }
+
   async signIn(
     authCredentialsDto: AuthCredentialsDto,
   ): Promise<{ accessToken: string }> {
@@ -26,12 +30,14 @@ export class AuthService {
     if (user && (await bcrypt.compare(password, user.password))) {
       const payload: JwtPayload = { userName };
       const accessToken: string = this.jwtService.sign(payload);
+      this.logger.verbose(`${userName} signIn`);
       return { accessToken };
     } else {
       this.logger.error(`login credentials was wrong for ${userName}`);
       throw new UnauthorizedException('Please check your login credentials');
     }
   }
+
   async deleteCurrentUser(user: User): Promise<string> {
     return await this.userRepository.deleteUser(user.id);
   }

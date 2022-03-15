@@ -14,15 +14,11 @@ export class UserRepository extends Repository<User> {
 
   async createUser(authCredentialDto: AuthCredentialsDto): Promise<void> {
     const { userName, password } = authCredentialDto;
-
-    const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const user = this.create({ userName, password: hashedPassword });
-    this.logger.verbose(`"${user}" was created`);
+    const user = this.create({ userName, password });
+    this.logger.verbose(`"${user.userName}" was created`);
     try {
       await this.save(user);
-      this.logger.verbose(`"${user}" was saved`);
+      this.logger.verbose(`"${user.userName}" was saved`);
     } catch (error) {
       if (error.code === '23505') {
         // duplicate username (need to make other file for handling error)
