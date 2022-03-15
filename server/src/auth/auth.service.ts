@@ -1,4 +1,10 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
@@ -40,5 +46,20 @@ export class AuthService {
 
   async deleteCurrentUser(user: User): Promise<string> {
     return await this.userRepository.deleteUser(user.id);
+  }
+
+  async updateUserPassword(user: User, newPassword: string): Promise<string> {
+    const { id, password } = user;
+    this.logger.log(newPassword);
+    const salt = await bcrypt.genSalt();
+    newPassword = await bcrypt.hash(newPassword, salt);
+    this.logger.log(newPassword);
+    if (password === newPassword) {
+      throw new HttpException(
+        'New password is equal to old password',
+        HttpStatus.OK,
+      );
+    }
+    return await this.userRepository.updatePassword(newPassword, id);
   }
 }

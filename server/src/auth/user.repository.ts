@@ -6,7 +6,6 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import * as bcrypt from 'bcryptjs';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
@@ -36,13 +35,26 @@ export class UserRepository extends Repository<User> {
       }
     }
   }
-  async deleteUser(id: string) {
+
+  async deleteUser(id: string): Promise<string> {
     try {
       await this.delete(id);
       this.logger.verbose(`user "${id}" was deleted`);
       return 'User was delete';
     } catch (error) {
       this.logger.error(`Failed to delete user "${id}".`, error.stack);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async updatePassword(newPassword: string, id: string): Promise<string> {
+    try {
+      this.logger.log(id);
+      await this.update({ id: id }, { password: newPassword });
+      this.logger.verbose(`user "${id}" Password was Update`);
+      return 'Password was update';
+    } catch (error) {
+      this.logger.error(`Failed to Update user "${id}". Password`, error.stack);
       throw new InternalServerErrorException();
     }
   }
