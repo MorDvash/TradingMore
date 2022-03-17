@@ -1,7 +1,15 @@
 export default {
   type: "object",
   properties: {
-    name: { type: 'string' }
+    name: {
+      type: 'string'
+    },
+    message: {
+      type: 'string'
+    },
+    subject: {
+      type: 'string'
+    }
   },
-  required: ['name']
+  required: ['name','message', 'subject']
 } as const;
