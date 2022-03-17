@@ -12,6 +12,7 @@
   "dependencies": {
     "@aws-sdk/client-ses": "^3.54.1",
     "@middy/core": "^2.5.3",
+    "@middy/http-cors": "^2.5.7",
     "@middy/http-json-body-parser": "^2.5.3"
   },
   "devDependencies": {

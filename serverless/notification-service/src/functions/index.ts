@@ -1,1 +1,1 @@
-export { default as hello } from './sendEmail';
+export { default as sendEmail } from './sendEmail';

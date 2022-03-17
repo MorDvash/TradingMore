@@ -12,6 +12,13 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { User } from './user.entity';
+import { HttpService } from '@nestjs/axios';
+import {map, Observable} from "rxjs";
+
+interface Res {
+  name: string;
+  height: number;
+}
 
 @Injectable()
 export class AuthService {
@@ -19,12 +26,26 @@ export class AuthService {
   constructor(
     @InjectRepository(UserRepository) private userRepository: UserRepository,
     private jwtService: JwtService,
+    private httpService: HttpService
   ) {}
 
-  async signUp(authCredential: AuthCredentialsDto): Promise<void> {
+  async signUp(authCredential: AuthCredentialsDto): Promise<any> {
     const salt = await bcrypt.genSalt();
     authCredential.password = await bcrypt.hash(authCredential.password, salt);
-    return this.userRepository.createUser(authCredential);
+    await this.userRepository.createUser(authCredential);
+    try {
+      // return await this.httpService.post('https://swapi.py4e.com/api/people/1', {
+      //   name: 'mor'
+      // })
+      return this.httpService.post(' https://ypff6jjzk5.execute-api.eu-west-2.amazonaws.com/dev/sendEmail', {
+        name: 'Mor'
+      }).pipe(
+          map(response => response.data),
+      );
+    } catch (error) {
+      this.logger.log('axios fai;d')
+      this.logger.error('axios faild',error.stack)
+    }
   }
 
   async signIn(

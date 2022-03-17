@@ -1,6 +1,6 @@
 import type { ValidatedEventAPIGatewayProxyEvent } from '@libs/api-gateway';
 import { formatJSONResponse } from '@libs/api-gateway';
-import { middyfy } from '@libs/lambda';
+import commonMiddleware from '@libs/lambda';
 import  { SESClient, SendEmailCommand }  from  "@aws-sdk/client-ses";
 import schema from './schema';
 
@@ -27,7 +27,7 @@ const sendEmail: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (even
         Data: "Test mail",
       },
     },
-    Source: "mordvash1@gmail.com",
+    Source: "tradingmoreweb@gmail.com",
   };
 
   try {
@@ -43,4 +43,4 @@ const sendEmail: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (even
   });
 };
 
-export const main = middyfy(sendEmail);
+export const main = commonMiddleware(sendEmail);
